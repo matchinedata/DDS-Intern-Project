@@ -1,0 +1,423 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+#Loading the Dataset
+```{r}
+data(iris)
+head(iris)
+str(iris)
+dim(iris)
+names(iris)
+```
+## Count missing values in each column
+```{r}
+colSums(is.na(iris))
+```
+## Count missing values across the entire dataset
+```{r}
+sum(is.na(iris))
+```
+# Count duplicated rows
+```{r}
+sum(duplicated(iris))
+```
+# Display duplicate rows, if any
+```{r}
+iris[duplicated(iris), ]
+```
+# Check data types
+```{r}
+sapply(iris, class)
+```
+# Convert Species to a factor if necessary
+```{r}
+iris$Species <- as.factor(iris$Species)
+```
+# Check the number of observations in each species
+```{r}
+table(iris$Species)
+```
+# Basic descriptive statistics
+```{r}
+summary(iris)
+```
+# Calculate means of numerical variables
+```{r}
+sapply(iris[1:4], mean)
+```
+# Calculate standard deviations
+```{r}
+sapply(iris[1:4], sd)
+```
+# Calculate medians
+```{r}
+sapply(iris[1:4], median)
+```
+# Histogram of Petal Length
+```{r}
+library(ggplot2)
+
+ggplot(iris, aes(x = Petal.Length)) +
+  geom_histogram(
+    binwidth = 0.5,
+    fill = "steelblue",
+    color = "white"
+  ) +
+  labs(
+    title = "Distribution of Iris Petal Length",
+    x = "Petal Length (cm)",
+    y = "Number of Observations"
+  ) +
+  theme_minimal()
+
+```
+#Scatter Plot of Petal Length and Petal Width
+```{r}
+ggplot(
+  iris,
+  aes(
+    x = Petal.Length,
+    y = Petal.Width,
+    color = Species
+  )
+) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(
+    title = "Relationship Between Petal Length and Petal Width",
+    x = "Petal Length (cm)",
+    y = "Petal Width (cm)",
+    color = "Species"
+  ) +
+  theme_minimal()
+
+```
+#Box Plot of Petal Length by Species
+```{r}
+ggplot(
+  iris,
+  aes(
+    x = Species,
+    y = Petal.Length,
+    fill = Species
+  )
+) +
+  geom_boxplot() +
+  labs(
+    title = "Petal Length by Iris Species",
+    x = "Species",
+    y = "Petal Length (cm)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+#Correlation Heatmap
+```{r}
+# Calculate the correlation matrix
+cor_matrix <- cor(iris[, 1:4])
+
+# Convert the matrix to a data frame
+cor_df <- as.data.frame(as.table(cor_matrix))
+
+# Create the heatmap
+ggplot(
+  cor_df,
+  aes(
+    x = Var1,
+    y = Var2,
+    fill = Freq
+  )
+) +
+  geom_tile(color = "white") +
+  geom_text(
+    aes(label = sprintf("%.2f", Freq)),
+    size = 4
+  ) +
+  scale_fill_gradient2(
+    low = "firebrick",
+    mid = "white",
+    high = "steelblue",
+    midpoint = 0,
+    limits = c(-1, 1)
+  ) +
+  labs(
+    title = "Correlation Heatmap of Iris Measurements",
+    x = "Measurement",
+    y = "Measurement",
+    fill = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+
+```
+#Species-Level Summary Statistics
+```{r}
+library(dplyr)
+
+species_summary <- iris %>%
+  group_by(Species) %>%
+  summarise(
+    Count = n(),
+    Mean_Sepal_Length = mean(Sepal.Length),
+    Mean_Sepal_Width = mean(Sepal.Width),
+    Mean_Petal_Length = mean(Petal.Length),
+    Mean_Petal_Width = mean(Petal.Width),
+    SD_Petal_Length = sd(Petal.Length),
+    .groups = "drop"
+  )
+
+print(species_summary)
+
+```
+#Correlation Calculation
+```{r}
+cor(
+  iris[, 1:4],
+  method = "pearson"
+)
+
+```
+#Identifying Potential Outliers
+```{r}
+# Create a box plot for all numerical measurements
+boxplot(
+  iris[, 1:4],
+  main = "Box Plots of Iris Measurements",
+  ylab = "Measurement (cm)",
+  col = "lightblue"
+)
+
+```
+#COMPLETE R SCRIPT
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# 1. Load the dataset
+data(iris)
+df <- iris
+
+# 2. Inspect the data
+cat("Dataset dimensions:\n")
+print(dim(df))
+
+cat("\nColumn names:\n")
+print(names(df))
+
+cat("\nData structure:\n")
+str(df)
+
+cat("\nSummary statistics:\n")
+print(summary(df))
+
+# 3. Check data quality
+cat("\nMissing values by column:\n")
+print(colSums(is.na(df)))
+
+cat("\nNumber of duplicated rows:\n")
+print(sum(duplicated(df)))
+
+cat("\nSpecies counts:\n")
+print(table(df$Species))
+
+# 4. Descriptive statistics
+cat("\nMeans of numerical variables:\n")
+print(sapply(df[, 1:4], mean))
+
+cat("\nStandard deviations:\n")
+print(sapply(df[, 1:4], sd))
+
+# 5. Species-level summary
+species_summary <- df %>%
+  group_by(Species) %>%
+  summarise(
+    Count = n(),
+    Mean_Sepal_Length = mean(Sepal.Length),
+    Mean_Sepal_Width = mean(Sepal.Width),
+    Mean_Petal_Length = mean(Petal.Length),
+    Mean_Petal_Width = mean(Petal.Width),
+    SD_Petal_Length = sd(Petal.Length),
+    .groups = "drop"
+  )
+
+print(species_summary)
+
+# 6. Calculate correlations
+cor_matrix <- cor(df[, 1:4])
+
+cat("\nCorrelation matrix:\n")
+print(round(cor_matrix, 3))
+
+# 7. Create an output folder
+dir.create(
+  "results",
+  showWarnings = FALSE
+)
+
+# 8. Visualization 1: Histogram
+p1 <- ggplot(
+  df,
+  aes(x = Petal.Length)
+) +
+  geom_histogram(
+    binwidth = 0.5,
+    fill = "steelblue",
+    color = "white"
+  ) +
+  labs(
+    title = "Distribution of Iris Petal Length",
+    x = "Petal Length (cm)",
+    y = "Number of Observations"
+  ) +
+  theme_minimal()
+
+print(p1)
+
+ggsave(
+  "results/figure1_histogram.png",
+  plot = p1,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+
+# 9. Visualization 2: Scatter plot
+p2 <- ggplot(
+  df,
+  aes(
+    x = Petal.Length,
+    y = Petal.Width,
+    color = Species
+  )
+) +
+  geom_point(
+    size = 3,
+    alpha = 0.8
+  ) +
+  labs(
+    title = "Petal Length and Petal Width by Species",
+    x = "Petal Length (cm)",
+    y = "Petal Width (cm)",
+    color = "Species"
+  ) +
+  theme_minimal()
+
+print(p2)
+
+ggsave(
+  "results/figure2_scatterplot.png",
+  plot = p2,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+
+# 10. Visualization 3: Box plot
+p3 <- ggplot(
+  df,
+  aes(
+    x = Species,
+    y = Petal.Length,
+    fill = Species
+  )
+) +
+  geom_boxplot() +
+  labs(
+    title = "Petal Length by Iris Species",
+    x = "Species",
+    y = "Petal Length (cm)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
+
+print(p3)
+
+ggsave(
+  "results/figure3_boxplot.png",
+  plot = p3,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+
+# 11. Visualization 4: Correlation heatmap
+cor_df <- as.data.frame(
+  as.table(cor_matrix)
+)
+
+p4 <- ggplot(
+  cor_df,
+  aes(
+    x = Var1,
+    y = Var2,
+    fill = Freq
+  )
+) +
+  geom_tile(
+    color = "white"
+  ) +
+  geom_text(
+    aes(label = sprintf("%.2f", Freq)),
+    size = 4
+  ) +
+  scale_fill_gradient2(
+    low = "firebrick",
+    mid = "white",
+    high = "steelblue",
+    midpoint = 0,
+    limits = c(-1, 1)
+  ) +
+  labs(
+    title = "Correlation Heatmap of Iris Measurements",
+    x = "Measurement",
+    y = "Measurement",
+    fill = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+
+print(p4)
+
+ggsave(
+  "results/figure4_correlation_heatmap.png",
+  plot = p4,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+# 12. Export summary statistics
+write.csv(
+  species_summary,
+  "results/species_summary.csv",
+  row.names = FALSE
+)
+
+write.csv(
+  cor_matrix,
+  "results/correlation_matrix.csv"
+)
+
+cat(
+  "\nAnalysis completed. Check the results folder ",
+  "for the plots and summary files.\n",
+  sep = ""
+)
+
+```
+
+
